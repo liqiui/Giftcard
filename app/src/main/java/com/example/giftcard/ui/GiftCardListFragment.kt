@@ -68,7 +68,7 @@ fun GiftCardItem(giftCard: GiftCard, onClick: () -> Unit,
             Text(text = giftCard.vendor)
         }
         Spacer(Modifier.weight(1f))
-        Button(onClick = {  }) {
+        Button(onClick = { navController.navigate("giftCardDetail/${giftCard.id}") }) {
             Text(text = "Detail")
         }
     }

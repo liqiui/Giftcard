@@ -7,6 +7,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.giftcard.ui.GiftCardDetailScreen
 import com.example.giftcard.ui.GiftCardsList
 import com.example.giftcard.ui.GiftCardsViewModel
 import com.example.giftcard.ui.login.ScreenLogin
@@ -30,6 +31,12 @@ class MainActivity : ComponentActivity() {
                         onGiftCardSelected = { /* TODO */ },navController
 
                     )
+                }
+                composable("giftCardDetail/{id}") { backStackEntry ->
+                    backStackEntry.arguments?.getString("id")?.let { giftCardId ->
+                        // Fetch gift card details using giftCardId
+                        GiftCardDetailScreen(giftCardId,navController)
+                    }
                 }
             }
         }
