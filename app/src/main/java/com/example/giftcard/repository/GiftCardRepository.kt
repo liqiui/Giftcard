@@ -5,12 +5,26 @@ import com.example.giftcard.data.sampleData
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import java.io.IOException
 
 class GiftCardRepository() {
     companion object {
         lateinit var giftCardList: List<GiftCard>
 
-        suspend fun getGiftCards() = getDataFromJson()
+//         suspend fun getGiftCards() = getDataFromJson()
+        suspend fun getGiftCards() = getDataFromApi()
+        private suspend fun getDataFromApi() {
+            // Fetch data from network or database
+            // Example network call using Retrofit and Moshi
+
+            val response = Api.retrofitService.getGiftCards()
+            if (response.isSuccessful) {
+                giftCardList = response.body() ?: emptyList()
+            } else {
+                // Handle error
+                throw IOException("Failed to fetch gift cards")
+            }
+        }
 
         //getting data from local data for testing
         private suspend fun getDataFromJson() {
