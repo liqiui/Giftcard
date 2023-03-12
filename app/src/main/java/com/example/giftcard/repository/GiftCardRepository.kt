@@ -13,10 +13,9 @@ class GiftCardRepository() {
 
 //         suspend fun getGiftCards() = getDataFromJson()
         suspend fun getGiftCards() = getDataFromApi()
+        // Fetch data from network or database
+        // Example network call using Retrofit and Moshi
         private suspend fun getDataFromApi() {
-            // Fetch data from network or database
-            // Example network call using Retrofit and Moshi
-
             val response = Api.retrofitService.getGiftCards()
             if (response.isSuccessful) {
                 giftCardList = response.body() ?: emptyList()

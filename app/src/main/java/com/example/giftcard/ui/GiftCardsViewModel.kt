@@ -18,9 +18,6 @@ class GiftCardsViewModel : ViewModel() {
     val state: State<GiftCardsState> = _state
     // The internal MutableLiveData Data that stores the most recent data
     private val _result = MutableLiveData<List<GiftCard>>()
-    private val _selectedData = MutableLiveData<GiftCard>()
-    val result: LiveData<List<GiftCard>>
-        get() = _result
 
     init {
         fetchGiftCards()
