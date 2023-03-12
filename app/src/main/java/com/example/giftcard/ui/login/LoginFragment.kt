@@ -8,6 +8,8 @@ import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -24,6 +26,18 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 fun ScreenLogin(onSubmit: () -> Unit) {
     val viewModel = viewModel<LoginViewModel>()
     val keyboardController = LocalSoftwareKeyboardController.current
+
+    val validationEvents = remember(viewModel) {
+        viewModel.validationEvents
+    }
+    LaunchedEffect(key1 = viewModel) {
+        validationEvents.collect { event ->
+            when (event) {
+                is LoginViewModel.ValidationEvent.Success -> onSubmit()
+            }
+        }
+    }
+
 
     Column(
         modifier = Modifier
@@ -109,7 +123,7 @@ fun ScreenLogin(onSubmit: () -> Unit) {
         Button(
             onClick = {
                 viewModel.onEvent(RegistrationFormEvent.Submit)
-                onSubmit()
+//                onSubmit()
             },
             modifier = Modifier
                 .height(55.dp)
