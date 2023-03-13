@@ -7,9 +7,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.giftcard.ui.GiftCardDetailScreen
-import com.example.giftcard.ui.GiftCardsList
-import com.example.giftcard.ui.GiftCardsViewModel
+import com.example.giftcard.ui.*
 import com.example.giftcard.ui.login.ScreenLogin
 
 class MainActivity : ComponentActivity() {
@@ -38,6 +36,12 @@ class MainActivity : ComponentActivity() {
                         GiftCardDetailScreen(giftCardId,navController)
                     }
                 }
+                composable("confirmation") {
+                    ConfirmationScreen()
+                }
+                composable("cart") {
+                    val cartViewModel = viewModel<CartViewModel>()
+                    CartScreen(cartViewModel, navController) }
             }
         }
     }

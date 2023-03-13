@@ -116,6 +116,8 @@ fun GiftCardDetailScreen(giftCardId: String, navController: NavHostController) {
         item {
             Button(
                 onClick = {
+                    viewModel.addToCart(giftCard, selectedDenominationIndex.value)
+                    navController.navigate("cart")
                 },
                 modifier = Modifier
                     .fillMaxWidth()

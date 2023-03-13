@@ -30,7 +30,7 @@ fun GiftCardsList(
         items(giftCards) { giftCard ->
             GiftCardItem(
                 giftCard = giftCard,
-                onClick = {onGiftCardSelected(giftCard)},//// navController.navigate("giftCardDetail/${giftCard.id}")
+                onClick = {onGiftCardSelected(giftCard)},
                 navController = navController
             )
             Divider()

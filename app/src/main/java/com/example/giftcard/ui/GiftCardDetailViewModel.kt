@@ -6,6 +6,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.giftcard.data.Denominations
 import com.example.giftcard.data.GiftCard
+import com.example.giftcard.repository.CartItem
+import com.example.giftcard.repository.CartRepository
 import com.example.giftcard.repository.GiftCardRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -49,6 +51,12 @@ class GiftCardDetailViewModel(private val giftCardId: String) : ViewModel() {
         }
     }
 
+    fun addToCart(giftCard: GiftCard, selectedDenominationIndex: Int) {
+        val denomination = giftCard.denominations[selectedDenominationIndex]
+        val cartItem = CartItem(id = giftCard.id, price = denomination.price,
+            currency = denomination.currency, quantity = 1,giftCard.image)
+        CartRepository.addItem(cartItem)
+    }
 }
 
 data class GiftCardDetailViewState(

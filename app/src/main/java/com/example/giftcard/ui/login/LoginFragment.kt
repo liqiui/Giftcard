@@ -106,7 +106,6 @@ fun ScreenLogin(onSubmit: () -> Unit) {
             ),
             keyboardActions = KeyboardActions {
                 keyboardController?.hide() // Hide keyboard when "Done" is pressed
-                viewModel.onEvent(RegistrationFormEvent.Submit)
             }
         )
         viewModel.state.passwordError?.let {
@@ -123,7 +122,6 @@ fun ScreenLogin(onSubmit: () -> Unit) {
         Button(
             onClick = {
                 viewModel.onEvent(RegistrationFormEvent.Submit)
-//                onSubmit()
             },
             modifier = Modifier
                 .height(55.dp)
