@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import com.example.giftcard.repository.CartItem
 import com.example.giftcard.repository.CartRepository
 
-class CartViewModel() : ViewModel() {
+class CartViewModel : ViewModel() {
 
     fun getCartItems(): List<CartItem> {
         return CartRepository.getItems()

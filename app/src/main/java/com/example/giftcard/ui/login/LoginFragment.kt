@@ -1,5 +1,6 @@
 package com.example.giftcard.ui.login
 
+import android.app.Application
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -23,8 +24,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun ScreenLogin(onSubmit: () -> Unit) {
-    val viewModel = viewModel<LoginViewModel>()
+fun ScreenLogin(onSubmit: () -> Unit, application: Application) {
+    val viewModel: LoginViewModel = viewModel(
+        factory = ViewModelFactory(application)
+    )
     val keyboardController = LocalSoftwareKeyboardController.current
 
     val validationEvents = remember(viewModel) {

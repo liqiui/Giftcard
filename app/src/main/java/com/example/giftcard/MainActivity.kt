@@ -1,6 +1,7 @@
 package com.example.giftcard
 
 import android.os.Bundle
+import android.os.UserManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -13,13 +14,14 @@ import com.example.giftcard.ui.login.ScreenLogin
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             val navController = rememberNavController()
             NavHost(navController = navController, startDestination = "login") {
                 composable("login") {
                     ScreenLogin(onSubmit = {
                         navController.navigate("GiftCardsList")
-                    })
+                    }, application = application)
                 }
                 composable("GiftCardsList") {
                     val viewModel = viewModel<GiftCardsViewModel>()
