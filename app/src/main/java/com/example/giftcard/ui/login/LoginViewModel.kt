@@ -20,18 +20,11 @@ class LoginViewModel(
 
     fun onEvent(event: RegistrationFormEvent) {
         when (event) {
-            is RegistrationFormEvent.UsernameChanged -> {
-                state = state.copy(username = event.username)
-            }
-
-            is RegistrationFormEvent.PasswordChanged -> {
-                state = state.copy(password = event.password)
-            }
-
-            is RegistrationFormEvent.Submit -> {
-                submitData()
-            }
+            is RegistrationFormEvent.UsernameChanged -> state = state.copy(username = event.username)
+            is RegistrationFormEvent.PasswordChanged -> state = state.copy(password = event.password)
+            is RegistrationFormEvent.Submit -> submitData()
         }
+
     }
 
     private fun submitData() {

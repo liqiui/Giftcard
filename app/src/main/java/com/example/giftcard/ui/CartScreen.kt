@@ -7,7 +7,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -20,35 +20,49 @@ import com.example.giftcard.repository.CartItem
 
 @Composable
 fun CartScreen(cartViewModel: CartViewModel, navController: NavHostController) {
-    val cartItems = cartViewModel.getCartItems()
+    val cartItemsState = remember { mutableStateOf(cartViewModel.getCartItems()) }
 
     Column(modifier = Modifier.fillMaxSize()) {
         LazyColumn(modifier = Modifier.weight(1f)) {
-            items(cartItems) { cartItem ->
-                CartItemRow(cartItem, cartViewModel)
+            items(cartItemsState.value) { cartItem ->
+                CartItemRow(cartItem, cartViewModel, cartItemsState)
                 Divider()
             }
         }
 
         Spacer(modifier = Modifier.height(8.dp))
-
-        Button(
-            onClick = {
-                navController.navigate("confirmation")
-            },
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp)
+                .padding(horizontal = 16.dp, vertical = 8.dp)
                 .height(50.dp),
-            enabled = cartItems.isNotEmpty()
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = "Checkout")
+            Button(
+                onClick = {
+                    navController.navigate("confirmation")
+                },
+                modifier = Modifier.weight(1f),
+                enabled = cartItemsState.value.isNotEmpty()
+            ) {
+                Text(text = "Checkout")
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+            Button(
+                onClick = {
+                    navController.popBackStack()
+                },
+                modifier = Modifier.weight(1f),
+            ) {
+                Text(text = "Continue Shopping")
+            }
         }
     }
 }
 
 @Composable
-fun CartItemRow(cartItem: CartItem, cartViewModel: CartViewModel) {
+fun CartItemRow(cartItem: CartItem, cartViewModel: CartViewModel, cartItemsState: MutableState<List<CartItem>>) {
     Card(
         modifier = Modifier
             .padding(horizontal = 16.dp, vertical = 8.dp)
@@ -91,6 +105,7 @@ fun CartItemRow(cartItem: CartItem, cartViewModel: CartViewModel) {
             IconButton(
                 onClick = {
                     cartViewModel.removeItem(cartItem)
+                    cartItemsState.value = cartViewModel.getCartItems()
                 },
                 modifier = Modifier.padding(start = 16.dp, end = 8.dp)
             ) {

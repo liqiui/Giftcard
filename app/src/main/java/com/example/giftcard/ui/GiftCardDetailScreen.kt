@@ -39,18 +39,8 @@ fun GiftCardDetailScreen(giftCardId: String, navController: NavHostController) {
         }
         item {
             Text(
-                text = giftCard.brand,
+                text = "${giftCard.brand} - ${giftCard.discount}% off",
                 style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-                    .fillMaxWidth()
-            )
-        }
-        item {
-            Text(
-                text = "${giftCard.discount}% off",
-                style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
                     .padding(horizontal = 16.dp, vertical = 8.dp)
@@ -72,7 +62,7 @@ fun GiftCardDetailScreen(giftCardId: String, navController: NavHostController) {
         item {
             Text(
                 text = "Selected denomination: ${giftCard.denominations[selectedDenominationIndex.value].price} ${giftCard.denominations[selectedDenominationIndex.value].currency}",
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.labelMedium,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
@@ -101,29 +91,30 @@ fun GiftCardDetailScreen(giftCardId: String, navController: NavHostController) {
             Spacer(modifier = Modifier.height(8.dp))
         }
         item {
-            Button(
-                onClick = {
-                    navController.navigate("confirmation")
-                },
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                enabled = selectedDenominationIndex.value >= 0
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = "Buy now")
-            }
-        }
-        item {
-            Button(
-                onClick = {
-                    viewModel.addToCart(giftCard, selectedDenominationIndex.value)
-                    navController.navigate("cart")
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-            ) {
-                Text(text = "Add to Cart")
+                Button(
+                    onClick = {
+                        navController.navigate("confirmation")
+                    },
+                    enabled = selectedDenominationIndex.value >= 0
+                ) {
+                    Text(text = "Buy now")
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                Button(
+                    onClick = {
+                        viewModel.addToCart(giftCard, selectedDenominationIndex.value)
+                        navController.navigate("cart")
+                    }
+                ) {
+                    Text(text = "Add to Cart")
+                }
             }
         }
     }
