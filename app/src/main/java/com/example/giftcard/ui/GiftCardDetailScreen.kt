@@ -17,7 +17,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.rememberImagePainter
 import com.example.giftcard.data.Denominations
-import androidx.compose.material.Card
 
 @Composable
 fun GiftCardDetailScreen(giftCardId: String, navController: NavHostController) {
@@ -102,6 +101,7 @@ fun GiftCardDetailScreen(giftCardId: String, navController: NavHostController) {
                     onClick = {
                         navController.navigate("confirmation")
                     },
+                    modifier = Modifier.weight(1f),
                     enabled = selectedDenominationIndex.value >= 0
                 ) {
                     Text(text = "Buy now")
@@ -111,7 +111,8 @@ fun GiftCardDetailScreen(giftCardId: String, navController: NavHostController) {
                     onClick = {
                         viewModel.addToCart(giftCard, selectedDenominationIndex.value)
                         navController.navigate("cart")
-                    }
+                    },
+                    modifier = Modifier.weight(1f),
                 ) {
                     Text(text = "Add to Cart")
                 }
