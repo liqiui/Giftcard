@@ -16,11 +16,13 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.giftcard.R
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -52,7 +54,7 @@ fun ScreenLogin(onSubmit: () -> Unit, application: Application) {
         OutlinedTextField(
             value = viewModel.state.username,
             onValueChange = { viewModel.onEvent(RegistrationFormEvent.UsernameChanged(it)) },
-            label = { Text(text = "Username") },
+            label = { Text(text = stringResource(R.string.user_name)) },
             leadingIcon = {
                 Icon(
                     Icons.Default.AccountBox,

@@ -9,41 +9,41 @@ import com.example.giftcard.data.GiftCard
 import com.example.giftcard.repository.CartItem
 import com.example.giftcard.repository.CartRepository
 import com.example.giftcard.repository.GiftCardRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
-class GiftCardDetailViewModel(private val giftCardId: String) : ViewModel() {
+@HiltViewModel
+class GiftCardDetailViewModel @Inject constructor(
+    private val giftCardRepository: GiftCardRepository,
+    private val cardRepository:CartRepository) : ViewModel() {
 
-    private val _state = mutableStateOf(GiftCardDetailViewState(giftCard= null, denominations = emptyList()))
+    private val _state = mutableStateOf(GiftCardDetailViewState(giftCard = null, denominations = emptyList()))
     val state: State<GiftCardDetailViewState> = _state
-    lateinit var giftCard: GiftCard
 
-    val data = GiftCardRepository.giftCardList
-    init {
-        loadGiftCard()
-    }
-
-    fun getGiftCardById(): GiftCard {
-        return data.find { it.id == giftCardId }
-            ?: throw IllegalArgumentException("Gift card with id $giftCardId not found.")
-    }
-
-    private fun loadGiftCard() {
+    suspend fun loadGiftCard(giftCardId: String) {
         viewModelScope.launch {
             try {
                 withContext(Dispatchers.IO) {
-                    // code to load gift card with the given id
-                    giftCard = getGiftCardById()
-
-                    val denominations = giftCard.denominations
-                    val newState = state.value.copy(
-                        giftCard = giftCard,
-                        denominations = denominations,
-                        selectedDenomination = denominations.firstOrNull()?.let { 0 }
-                    )
-                    _state.value = newState
-//                    _data.postValue(giftCard)
+                    val giftCard = giftCardRepository.getGiftCardById(giftCardId)
+                    if (giftCard != null) {
+                        val denominations = giftCard.denominations
+                        val newState = state.value.copy(
+                            giftCard = giftCard,
+                            denominations = denominations,
+                            selectedDenomination = denominations.firstOrNull()?.let { 0 },
+                             isLoading = true
+                        )
+                        _state.value = newState
+                    } else {
+                        // handle the case where the gift card with the given id is not found
+                        _state.value = state.value.copy(
+                            isLoading = false,
+                            error = "Gift card not found"
+                        )
+                    }
                 }
             } catch (e: Exception) {
                 // handle the exception
@@ -55,7 +55,7 @@ class GiftCardDetailViewModel(private val giftCardId: String) : ViewModel() {
         val denomination = giftCard.denominations[selectedDenominationIndex]
         val cartItem = CartItem(id = giftCard.id, price = denomination.price,
             currency = denomination.currency, quantity = 1,giftCard.image)
-        CartRepository.addItem(cartItem)
+        cardRepository.addItem(cartItem)
     }
 }
 
@@ -66,4 +66,3 @@ data class GiftCardDetailViewState(
     val isLoading: Boolean = false,
     val error: String = ""
 )
-

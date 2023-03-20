@@ -4,7 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import com.example.giftcard.R
@@ -21,13 +22,14 @@ import com.example.giftcard.data.GiftCard
 
 @Composable
 fun GiftCardsList(
-    giftCards: List<GiftCard>,
+    viewModel: GiftCardsViewModel = hiltViewModel<GiftCardsViewModel>(),
     onGiftCardSelected: (GiftCard) -> Unit,
     navController: NavController
 ) {
-
+    val state = viewModel.state
+    val giftCards  = state.value.giftCards
     LazyColumn {
-        items(giftCards) { giftCard ->
+        itemsIndexed(giftCards) { index, giftCard ->
             GiftCardItem(
                 giftCard = giftCard,
                 onClick = {onGiftCardSelected(giftCard)},
@@ -37,6 +39,7 @@ fun GiftCardsList(
         }
     }
 }
+
 
 @Composable
 fun GiftCardItem(giftCard: GiftCard, onClick: () -> Unit,
@@ -73,6 +76,3 @@ fun GiftCardItem(giftCard: GiftCard, onClick: () -> Unit,
         }
     }
 }
-
-
-

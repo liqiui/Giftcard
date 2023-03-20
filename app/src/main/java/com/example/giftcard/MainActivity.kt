@@ -1,16 +1,19 @@
 package com.example.giftcard
 
 import android.os.Bundle
-import android.os.UserManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.giftcard.ui.*
+import com.example.giftcard.ui.CartScreen
+import com.example.giftcard.ui.ConfirmationScreen
+import com.example.giftcard.ui.GiftCardDetailScreen
+import com.example.giftcard.ui.GiftCardsList
 import com.example.giftcard.ui.login.ScreenLogin
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,26 +27,24 @@ class MainActivity : ComponentActivity() {
                     }, application = application)
                 }
                 composable("GiftCardsList") {
-                    val viewModel = viewModel<GiftCardsViewModel>()
-                    val state = viewModel.state
-                    GiftCardsList(
-                        giftCards = state.value.giftCards,
-                        onGiftCardSelected = { /* TODO */ },navController
+                        GiftCardsList(
+                            onGiftCardSelected = {  },
+                            navController = navController
 
-                    )
+                        )
                 }
                 composable("giftCardDetail/{id}") { backStackEntry ->
                     backStackEntry.arguments?.getString("id")?.let { giftCardId ->
                         // Fetch gift card details using giftCardId
-                        GiftCardDetailScreen(giftCardId,navController)
+                        GiftCardDetailScreen(giftCardId =giftCardId,
+                            navController = navController)
                     }
                 }
                 composable("confirmation") {
                     ConfirmationScreen()
                 }
                 composable("cart") {
-                    val cartViewModel = viewModel<CartViewModel>()
-                    CartScreen(cartViewModel, navController) }
+                    CartScreen( navController =  navController) }
             }
         }
     }

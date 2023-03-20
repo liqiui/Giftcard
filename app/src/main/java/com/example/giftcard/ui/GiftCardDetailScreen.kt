@@ -8,118 +8,143 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberImagePainter
 import com.example.giftcard.data.Denominations
 
 @Composable
-fun GiftCardDetailScreen(giftCardId: String, navController: NavHostController) {
-    val viewModel = remember { GiftCardDetailViewModel(giftCardId) }
-    val giftCard = remember { viewModel.getGiftCardById() }
-
+fun GiftCardDetailScreen(giftCardId: String, navController: NavHostController,
+                         viewModel: GiftCardDetailViewModel = hiltViewModel<GiftCardDetailViewModel>(),
+) {
     val selectedDenominationIndex = remember { mutableStateOf(0) }
 
-    LazyColumn(modifier = Modifier.fillMaxSize()) {
-        item {
-            Image(
-                painter = rememberImagePainter(data = giftCard.image),
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(1.5f)
-                    .padding(horizontal = 16.dp)
-            )
-        }
-        item {
-            Text(
-                text = "${giftCard.brand} - ${giftCard.discount}% off",
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-                    .fillMaxWidth()
-            )
-        }
-        item {
-            Text(
-                text = giftCard.terms,
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-                    .fillMaxWidth()
-            )
-        }
-        item {
-            Spacer(modifier = Modifier.height(8.dp))
-        }
-        item {
-            Text(
-                text = "Selected denomination: ${giftCard.denominations[selectedDenominationIndex.value].price} ${giftCard.denominations[selectedDenominationIndex.value].currency}",
-                style = MaterialTheme.typography.labelMedium,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(horizontal = 16.dp)
-            )
-        }
-        item {
-            LazyRow(
-                contentPadding = PaddingValues(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(80.dp)
-            ) {
-                itemsIndexed(giftCard.denominations) { index, denomination ->
-                    DenominationChip(
-                        denomination = denomination,
-                        selected = selectedDenominationIndex.value == index,
-                        onSelected = {
-                            selectedDenominationIndex.value = index
-                        }
+    LaunchedEffect(giftCardId) {
+        viewModel.loadGiftCard(giftCardId)
+    }
+
+    val giftCard = viewModel.state.value.giftCard
+    if (viewModel.state.value.isLoading) {
+        LazyColumn(modifier = Modifier.fillMaxSize()) {
+            item {
+                Image(
+                    painter = rememberImagePainter(data = giftCard?.image),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(1.5f)
+                        .padding(horizontal = 16.dp)
+                )
+            }
+            giftCard?.let { card ->
+                item {
+                    Text(
+                        text = "${card.brand} - ${card.discount}% off",
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                            .fillMaxWidth()
                     )
                 }
             }
-        }
-        item {
-            Spacer(modifier = Modifier.height(8.dp))
-        }
-        item {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Button(
-                    onClick = {
-                        navController.navigate("confirmation")
-                    },
-                    modifier = Modifier.weight(1f),
-                    enabled = selectedDenominationIndex.value >= 0
-                ) {
-                    Text(text = "Buy now")
+            item {
+                giftCard?.terms?.let {
+                    Text(
+                        text = it,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                            .fillMaxWidth()
+                    )
                 }
-                Spacer(modifier = Modifier.width(8.dp))
-                Button(
-                    onClick = {
-                        viewModel.addToCart(giftCard, selectedDenominationIndex.value)
-                        navController.navigate("cart")
-                    },
-                    modifier = Modifier.weight(1f),
+            }
+            item {
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+            val selectedDenomination =
+                giftCard?.denominations?.getOrNull(selectedDenominationIndex.value)
+
+            if (selectedDenomination != null) {
+                item {
+                    Text(
+                        text = "Selected denomination: ${selectedDenomination.price} ${viewModel.state.value.denominations[selectedDenominationIndex.value].currency}",
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
+                }
+//        } else {
+                // handle the case where giftCard or selectedDenomination is null
+            }
+            item {
+                LazyRow(
+                    contentPadding = PaddingValues(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(80.dp)
                 ) {
-                    Text(text = "Add to Cart")
+                    itemsIndexed(viewModel.state.value.denominations) { index, denomination ->
+                        DenominationChip(
+                            denomination = denomination,
+                            selected = selectedDenominationIndex.value == index,
+                            onSelected = {
+                                selectedDenominationIndex.value = index
+                            }
+                        )
+                    }
+                }
+            }
+            item {
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+            item {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Button(
+                        onClick = {
+                            navController.navigate("confirmation")
+                        },
+                        modifier = Modifier.weight(1f),
+                        enabled = selectedDenominationIndex.value >= 0
+                    ) {
+                        Text(text = "Buy now")
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(
+                        onClick = {
+                            giftCard?.let {
+                                viewModel.addToCart(
+                                    it,
+                                    selectedDenominationIndex.value
+                                )
+                            }
+                            navController.navigate("cart")
+                        },
+                        modifier = Modifier.weight(1f),
+                    ) {
+                        Text(text = "Add to Cart")
+                    }
                 }
             }
         }
     }
 }
+
 
 @Composable
 fun DenominationChip(denomination: Denominations, selected: Boolean, onSelected: () -> Unit) {
