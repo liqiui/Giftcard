@@ -1,18 +1,16 @@
 package com.example.giftcard.utils
 
-import android.content.Context
+import android.content.SharedPreferences
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class UserManager(context: Context) {
-
-    private val sharedPreferences = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
-
+@Singleton
+class UserManager @Inject constructor(
+    private val sharedPreferences: SharedPreferences
+) {
     var username: String?
         get() = sharedPreferences.getString("username", null)
         set(value) = sharedPreferences.edit().putString("username", value).apply()
-
-    var password: String?
-        get() = sharedPreferences.getString("password", null)
-        set(value) = sharedPreferences.edit().putString("password", value).apply()
 
     var biometricEnabled: Boolean
         get() = sharedPreferences.getBoolean("biometric_enabled", false)

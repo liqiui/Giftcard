@@ -1,42 +1,41 @@
 package com.example.giftcard.ui.login
 
-import android.app.Application
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
 import com.example.giftcard.utils.UserManager
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.launch
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class LoginViewModel(
-    application: Application,
-    private val validateUsername: ValidateUsername = ValidateUsername(),
-    private val validatePassword: ValidatePassword = ValidatePassword(),
+@HiltViewModel
+class LoginViewModel @Inject constructor(
+    private val userManager: UserManager
 ) : ViewModel() {
 
+    private val validateUsername = ValidateUsername()
+    private val validatePassword = ValidatePassword()
+
     var state by mutableStateOf(RegistrationFormState())
-    private val validationEventChannel = Channel<ValidationEvent>()
-    val validationEvents = validationEventChannel.receiveAsFlow()
-    private val userManager = UserManager(application)
+    var isSubmitting by mutableStateOf(false) // Add new state for form submission status
+
 
     init {
-        onEvent(RegistrationFormEvent.UsernameChanged(userManager.username ?: ""))
-        onEvent(RegistrationFormEvent.PasswordChanged(userManager.password ?: ""))
+        state = state.copy(
+            username = userManager.username ?: "",
+            password = ""
+        )
     }
 
-    fun onEvent(event: RegistrationFormEvent) {
-        when (event) {
-            is RegistrationFormEvent.UsernameChanged -> state = state.copy(username = event.username)
-            is RegistrationFormEvent.PasswordChanged -> state = state.copy(password = event.password)
-            is RegistrationFormEvent.Submit -> submitData()
-        }
+    fun onUsernameChanged(username: String) {
+        state = state.copy(username = username)
     }
 
-    private fun submitData() {
+    fun onPasswordChanged(password: String) {
+        state = state.copy(password = password)
+    }
+
+    fun onSubmit() {
         val usernameResult = validateUsername.execute(state.username)
         val passwordResult = validatePassword.execute(state.password)
         val hasError = listOf(
@@ -49,25 +48,19 @@ class LoginViewModel(
                 usernameError = usernameResult.errorMessage,
                 passwordError = passwordResult.errorMessage,
             )
+            // Set isSubmitting state to false to indicate form submission complete
+            isSubmitting = false
             return
         }
+        // Set isSubmitting state to true to indicate form submission in progress
+        isSubmitting = true
         userManager.username = state.username
-        userManager.password = state.password
+        state = state.copy(
+            usernameError = "",
+            passwordError = "",
+        )
 
-        viewModelScope.launch {
-            validationEventChannel.send(ValidationEvent.Success)
-        }
-    }
-    sealed class ValidationEvent {
-        object Success: ValidationEvent()
-    }
-}
-
-class ViewModelFactory(private val application: Application) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(LoginViewModel::class.java)) {
-            return LoginViewModel(application = application) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
+//        userManager.password = state.password
+        // Perform any other necessary actions upon successful submission
     }
 }

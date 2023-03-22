@@ -22,7 +22,8 @@ class ValidateUsername : Validator() {
             )
         }
         return ValidationResult(
-            successful = true
+            successful = true,
+            errorMessage = ""
         )
     }
 }
@@ -45,7 +46,8 @@ class ValidatePassword : Validator() {
             )
         }
         return ValidationResult(
-            successful = true
+            successful = true ,
+            errorMessage = ""
         )
     }
 }

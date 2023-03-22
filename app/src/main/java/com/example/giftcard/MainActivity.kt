@@ -24,7 +24,7 @@ class MainActivity : ComponentActivity() {
                 composable("login") {
                     ScreenLogin(onSubmit = {
                         navController.navigate("GiftCardsList")
-                    }, application = application)
+                    })
                 }
                 composable("GiftCardsList") {
                         GiftCardsList(

@@ -1,6 +1,5 @@
 package com.example.giftcard.ui.login
 
-import android.app.Application
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -9,40 +8,20 @@ import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.giftcard.R
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun ScreenLogin(onSubmit: () -> Unit, application: Application) {
-    val viewModel: LoginViewModel = viewModel(
-        factory = ViewModelFactory(application)
-    )
-    val keyboardController = LocalSoftwareKeyboardController.current
-
-    val validationEvents = remember(viewModel) {
-        viewModel.validationEvents
-    }
-    LaunchedEffect(key1 = viewModel) {
-        validationEvents.collect { event ->
-            when (event) {
-                is LoginViewModel.ValidationEvent.Success -> onSubmit()
-            }
-        }
-    }
-
+fun ScreenLogin(onSubmit: () -> Unit,
+viewModel: LoginViewModel = hiltViewModel<LoginViewModel>()) {
 
     Column(
         modifier = Modifier
@@ -53,7 +32,7 @@ fun ScreenLogin(onSubmit: () -> Unit, application: Application) {
     ) {
         OutlinedTextField(
             value = viewModel.state.username,
-            onValueChange = { viewModel.onEvent(RegistrationFormEvent.UsernameChanged(it)) },
+            onValueChange = { viewModel.state = viewModel.state.copy(username = it) },
             label = { Text(text = stringResource(R.string.user_name)) },
             leadingIcon = {
                 Icon(
@@ -63,7 +42,7 @@ fun ScreenLogin(onSubmit: () -> Unit, application: Application) {
                 )
             },
             singleLine = true,
-            isError = viewModel.state.usernameError != null,
+            isError = viewModel.state.usernameError?.isNotEmpty() ?: false,
             modifier = Modifier
                 .height(66.dp)
                 .fillMaxWidth(),
@@ -72,9 +51,7 @@ fun ScreenLogin(onSubmit: () -> Unit, application: Application) {
                 autoCorrect = true,
                 imeAction = ImeAction.Next
             ),
-            keyboardActions = KeyboardActions {
-                keyboardController?.hide() // Hide keyboard when "Next" is pressed
-            }
+            keyboardActions = KeyboardActions {}
         )
         viewModel.state.usernameError?.let {
             Text(
@@ -89,7 +66,7 @@ fun ScreenLogin(onSubmit: () -> Unit, application: Application) {
 
         OutlinedTextField(
             value = viewModel.state.password,
-            onValueChange = { viewModel.onEvent(RegistrationFormEvent.PasswordChanged(it)) },
+            onValueChange = { viewModel.state = viewModel.state.copy(password = it) },
             label = { Text(text = "Password") },
             leadingIcon = {
                 Icon(
@@ -99,7 +76,7 @@ fun ScreenLogin(onSubmit: () -> Unit, application: Application) {
                 )
             },
             singleLine = true,
-            isError = viewModel.state.passwordError != null,
+            isError = viewModel.state.passwordError?.isNotEmpty() ?: false,
             modifier = Modifier
                 .height(66.dp)
                 .fillMaxWidth(),
@@ -109,9 +86,7 @@ fun ScreenLogin(onSubmit: () -> Unit, application: Application) {
                 autoCorrect = true,
                 imeAction = ImeAction.Done
             ),
-            keyboardActions = KeyboardActions {
-                keyboardController?.hide() // Hide keyboard when "Done" is pressed
-            }
+            keyboardActions = KeyboardActions {}
         )
         viewModel.state.passwordError?.let {
             Text(
@@ -126,7 +101,10 @@ fun ScreenLogin(onSubmit: () -> Unit, application: Application) {
 
         Button(
             onClick = {
-                viewModel.onEvent(RegistrationFormEvent.Submit)
+                viewModel.onSubmit()
+                if (viewModel.isSubmitting ) {
+                    onSubmit()
+                }
             },
             modifier = Modifier
                 .height(55.dp)
